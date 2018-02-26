@@ -734,7 +734,7 @@ SINGLE_CLOSERS   = ['TERMINATOR', 'CATCH', 'FINALLY', 'ELSE', 'OUTDENT', 'LEADIN
 LINEBREAKS       = ['TERMINATOR', 'INDENT', 'OUTDENT']
 
 # Tokens that close open calls when they follow a newline.
-CALL_CLOSERS     = ['.', '?.', '::', '?::']
+CALL_CLOSERS     = ['.', '?.', '::', '?::', '+|']
 
 # Tokens that prevent a subsequent indent from ending implicit calls/objects
 CONTROL_IN_IMPLICIT = ['IF', 'TRY', 'FINALLY', 'CATCH', 'CLASS', 'SWITCH']

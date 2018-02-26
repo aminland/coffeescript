@@ -121,6 +121,7 @@ grammar =
     o 'While'
     o 'For'
     o 'Switch'
+    o 'Decorated'
     o 'Class'
     o 'Throw'
     o 'Yield'
@@ -400,6 +401,16 @@ grammar =
     o 'AssignList OptComma INDENT AssignList OptComma OUTDENT', -> $1.concat $4
   ]
 
+  # The list of decorators that a function accepts can be of any length.
+  Decorators: [
+    o 'DECORATOR Expression TERMINATOR',                         -> [$2]
+    o 'DECORATOR Expression TERMINATOR Decorators',              -> $4.unshift $2; $4
+  ]
+  Decorated: [
+    o 'Decorators Class',                                        -> $2.decorators = $1; $2
+    o 'Decorators EXPORT Class',                                 -> $3.decorators = $1; new ExportNamedDeclaration $3
+    o 'Decorators EXPORT DEFAULT Class',                         -> $4.decorators = $1; new ExportDefaultDeclaration $4
+  ]
   # Class definitions have optional bodies of prototype property assignments,
   # and optional references to the superclass.
   Class: [

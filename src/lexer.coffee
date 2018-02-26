@@ -682,6 +682,7 @@ exports.Lexer = class Lexer
     else if value in MATH            then tag = 'MATH'
     else if value in COMPARE         then tag = 'COMPARE'
     else if value in COMPOUND_ASSIGN then tag = 'COMPOUND_ASSIGN'
+    else if value in DECORATOR       then tag = 'DECORATOR'
     else if value in UNARY           then tag = 'UNARY'
     else if value in UNARY_MATH      then tag = 'UNARY_MATH'
     else if value in SHIFT           then tag = 'SHIFT'
@@ -1204,6 +1205,7 @@ NUMBER     = ///
 
 OPERATOR   = /// ^ (
   ?: [-=]>             # function
+   | \+\|              # decorator
    | [-+*/%<>&|^!?=]=  # compound assign / compare
    | >>>=?             # zero-fill right shift
    | ([-+:])\1         # doubles
@@ -1322,6 +1324,8 @@ LEADING_BLANK_LINE  = /^[^\n\S]*\n/
 TRAILING_BLANK_LINE = /\n[^\n\S]*$/
 
 TRAILING_SPACES     = /\s+$/
+
+DECORATOR = ['+|']
 
 # Compound assignment tokens.
 COMPOUND_ASSIGN = [

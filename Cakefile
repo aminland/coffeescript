@@ -53,9 +53,12 @@ run = (args, callback) ->
 buildParser = ->
   helpers.extend global, require 'util'
   require 'jison'
+  CoffeeScript = require require.resolve('./lib/coffeescript')
+  CoffeeScript.register()
   # We don't need `moduleMain`, since the parser is unlikely to be run standalone.
-  parser = require('./lib/coffeescript/grammar').parser.generate(moduleMain: ->)
-  fs.writeFileSync 'lib/coffeescript/parser.js', parser
+  parser = require('./src/grammar.coffee').parser.generate(moduleMain: ->)
+
+  console.log fs.writeFileSync 'lib/coffeescript/parser.js', parser
 
 buildExceptParser = (callback) ->
   files = fs.readdirSync 'src'
@@ -93,11 +96,13 @@ testBuiltCode = (watch = no) ->
 
 buildAndTest = (includingParser = yes, harmony = no) ->
   process.stdout.write '\x1Bc' # Clear terminal screen.
-  execSync 'git checkout lib/*', stdio: 'inherit' # Reset the generated compiler.
+  if includingParser
+    execSync 'find lib -type f ! -name parser.js -exec git checkout {} \\;', stdio: 'inherit' # Reset the generated compiler.
 
   buildArgs = ['bin/cake']
   buildArgs.push if includingParser then 'build' else 'build:except-parser'
   log "building#{if includingParser then ', including parser' else ''}...", green
+  console.log buildArgs
   spawnNodeProcess buildArgs, 'both', ->
     log 'testing...', green
     testArgs = if harmony then ['--harmony'] else []
@@ -455,6 +460,9 @@ runTests = (CoffeeScript) ->
 
   startTime = Date.now()
   for file in files when helpers.isCoffee file
+    if file != 'decorators.coffee'
+      continue
+
     literate = helpers.isLiterate file
     currentFile = filename = path.join 'test', file
     code = fs.readFileSync filename

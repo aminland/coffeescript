@@ -503,6 +503,7 @@ exports.Block = class Block extends Base
         # We want to compile this and ignore the result.
         node.compileToFragments o
         continue
+
       node = (node.unfoldSoak(o) or node)
       if node instanceof Block
         # This is a nested block. We don’t do anything special here like
@@ -1703,12 +1704,14 @@ exports.Arr = class Arr extends Base
       obj = obj.unwrapAll()
       obj.eachName iterator
 
+
 #### Class
 
 # The CoffeeScript class definition.
 # Initialize a **Class** with its name, an optional superclass, and a body.
 
 exports.Class = class Class extends Base
+  decorators: []
   children: ['variable', 'parent', 'body']
 
   constructor: (@variable, @parent, @body = new Block) ->
@@ -1724,7 +1727,7 @@ exports.Class = class Class extends Base
 
     node = @
 
-    if executableBody or @hasNameClash
+    if executableBody or @hasNameClash or @decorators.length
       node = new ExecutableClassBody node, executableBody
     else if not @name? and o.level is LEVEL_TOP
       # Anonymous classes are only valid in expressions
@@ -1752,6 +1755,9 @@ exports.Class = class Class extends Base
     o.indent += TAB
 
     result = []
+    if @decorators.length?
+      for decorator in @decorators
+        result.push @makeCode('@'), decorator.compileToFragments(o)..., @makeCode "\n#{@tab}"
     result.push @makeCode "class "
     result.push @makeCode @name if @name
     @compileCommentFragments o, @variable, result if @variable?.comments?
